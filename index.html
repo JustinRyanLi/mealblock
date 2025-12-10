@@ -819,7 +819,6 @@
             <button class="tab active" onclick="switchTab('booking')">📅 Book a Meal</button>
             <button class="tab" onclick="switchTab('myorders')">💾 My Orders</button>
             <button class="tab" onclick="switchTab('admin')">⚙️ Admin View</button>
-            <button class="tab" onclick="switchTab('archive')">📦 Past Weeks</button>
         </div>
 
         <div id="bookingTab" class="content">
@@ -960,8 +959,21 @@
                 </div>
             </div>
             
-            <h2 style="margin-bottom: 20px; color: var(--charcoal);">All Bookings</h2>
+            <h2 style="margin-bottom: 20px; color: var(--charcoal);">Current Week Bookings</h2>
             <div id="adminBookings"></div>
+            
+            <div style="margin-top: 40px; padding-top: 30px; border-top: 4px solid var(--charcoal);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2 style="color: var(--charcoal);">📦 Past Weeks Archive</h2>
+                    <button onclick="toggleArchiveSection()" id="archiveToggleBtn" style="padding: 12px 20px; background: var(--sage); color: var(--cream); border: 3px solid var(--charcoal); cursor: pointer; font-weight: 700; text-transform: uppercase; font-size: 0.9em;">
+                        Show Archive ▼
+                    </button>
+                </div>
+                <p style="margin-bottom: 20px; color: var(--charcoal); opacity: 0.8;">Past weeks are automatically archived here.</p>
+                <div id="archiveSection" style="display: none;">
+                    <div id="archiveList"></div>
+                </div>
+            </div>
         </div>
 
         <div id="myOrdersTab" class="content" style="display: none;">
@@ -979,11 +991,6 @@
             </div>
         </div>
 
-        <div id="archiveTab" class="content" style="display: none;">
-            <h2 style="margin-bottom: 20px; color: var(--charcoal);">📦 Archived Weeks</h2>
-            <p style="margin-bottom: 20px; color: var(--charcoal); opacity: 0.8;">Past weeks are automatically archived here. Click a week to view details.</p>
-            <div id="archiveList"></div>
-        </div>
     </div>
 
     <script>
@@ -1295,13 +1302,11 @@
                 document.getElementById('bookingTab').style.display = 'block';
                 document.getElementById('myOrdersTab').style.display = 'none';
                 document.getElementById('adminTab').style.display = 'none';
-                document.getElementById('archiveTab').style.display = 'none';
             } else if (tab === 'myorders') {
                 tabs[1].classList.add('active');
                 document.getElementById('bookingTab').style.display = 'none';
                 document.getElementById('myOrdersTab').style.display = 'block';
                 document.getElementById('adminTab').style.display = 'none';
-                document.getElementById('archiveTab').style.display = 'none';
                 renderMyOrders();
             } else if (tab === 'admin') {
                 // Check if already authenticated
@@ -1311,8 +1316,8 @@
                     // Prompt for password
                     const password = prompt('Enter admin password:');
                     
-                    // Set your password here (change "justin2026" to whatever you want)
-                    if (password === 'justin2026') {
+                    // Set your password here (change "4950" to whatever you want)
+                    if (password === '4950') {
                         sessionStorage.setItem('admin-authenticated', 'true');
                     } else {
                         alert('Incorrect password!');
@@ -1325,29 +1330,21 @@
                 document.getElementById('bookingTab').style.display = 'none';
                 document.getElementById('myOrdersTab').style.display = 'none';
                 document.getElementById('adminTab').style.display = 'block';
-                document.getElementById('archiveTab').style.display = 'none';
                 renderAdminView();
-            } else if (tab === 'archive') {
-                // Archive is admin-only too
-                const isAuthenticated = sessionStorage.getItem('admin-authenticated') === 'true';
-                
-                if (!isAuthenticated) {
-                    const password = prompt('Enter admin password:');
-                    if (password === 'justin2026') {
-                        sessionStorage.setItem('admin-authenticated', 'true');
-                    } else {
-                        alert('Incorrect password!');
-                        tabs[0].classList.add('active');
-                        return;
-                    }
-                }
-                
-                tabs[3].classList.add('active');
-                document.getElementById('bookingTab').style.display = 'none';
-                document.getElementById('myOrdersTab').style.display = 'none';
-                document.getElementById('adminTab').style.display = 'none';
-                document.getElementById('archiveTab').style.display = 'block';
+            }
+        }
+
+        function toggleArchiveSection() {
+            const section = document.getElementById('archiveSection');
+            const btn = document.getElementById('archiveToggleBtn');
+            
+            if (section.style.display === 'none') {
+                section.style.display = 'block';
+                btn.textContent = 'Hide Archive ▲';
                 renderArchiveView();
+            } else {
+                section.style.display = 'none';
+                btn.textContent = 'Show Archive ▼';
             }
         }
 
@@ -2020,9 +2017,6 @@
             }
             if (document.getElementById('myOrdersTab').style.display !== 'none') {
                 renderMyOrders();
-            }
-            if (document.getElementById('archiveTab').style.display !== 'none') {
-                renderArchiveView();
             }
         }
 
