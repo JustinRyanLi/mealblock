@@ -759,6 +759,16 @@
                 font-size: 2.5em;
             }
         }
+
+        /* Pulse animation for notification banner */
+        @keyframes pulse {
+            0%, 100% {
+                box-shadow: 0 0 0 0 rgba(186, 133, 48, 0.7);
+            }
+            50% {
+                box-shadow: 0 0 0 15px rgba(186, 133, 48, 0);
+            }
+        }
     </style>
 </head>
 <body>
@@ -779,6 +789,20 @@
                 </div>
             </div>
             
+            <div style="margin-top: 20px; display: grid; gap: 15px;">
+                <div style="padding: 15px; background: var(--terracotta); border: 3px solid var(--charcoal);">
+                    <div style="color: var(--cream); text-align: center; font-weight: 600; line-height: 1.5;">
+                        ⏰ <strong>Response Times:</strong> Response times will vary and are not a guarantee
+                    </div>
+                </div>
+                
+                <div style="padding: 15px; background: var(--burgundy); border: 3px solid var(--charcoal);">
+                    <div style="color: var(--cream); text-align: center; font-weight: 600; line-height: 1.5;">
+                        📅 <strong>Weekend Orders:</strong> Just contact directly - orders may or may not be fulfilled
+                    </div>
+                </div>
+            </div>
+            
             <div class="stats">
                 <div class="stat-card">
                     <h3 id="blocksUsed">0</h3>
@@ -793,10 +817,23 @@
 
         <div class="tabs">
             <button class="tab active" onclick="switchTab('booking')">📅 Book a Meal</button>
+            <button class="tab" onclick="switchTab('myorders')">💾 My Orders</button>
             <button class="tab" onclick="switchTab('admin')">⚙️ Admin View</button>
+            <button class="tab" onclick="switchTab('archive')">📦 Past Weeks</button>
         </div>
 
         <div id="bookingTab" class="content">
+            <div id="specialNotification" style="margin-bottom: 25px; padding: 25px; background: var(--mustard); border: 4px solid var(--charcoal); position: relative;">
+                <div style="color: var(--charcoal);">
+                    <div style="font-size: 1.3em; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; text-align: center;">
+                        🎉 <span id="notificationTitle">Stay Tuned!</span>
+                    </div>
+                    <div style="font-size: 1.1em; line-height: 1.6; text-align: center;" id="notificationMessage">
+                        Sometimes special offers pop up here - check back often!
+                    </div>
+                </div>
+            </div>
+            
             <div class="week-nav">
                 <button onclick="changeWeek(-1)" id="prevWeek">← Previous Week</button>
                 <h2 id="weekDisplay">Week of Jan 13, 2026</h2>
@@ -843,6 +880,72 @@
         <div id="adminTab" class="content" style="display: none;">
             <div style="margin-bottom: 30px; padding: 25px; background: var(--mustard); border: 3px solid var(--charcoal); position: relative; z-index: 1;">
                 <h3 style="color: var(--charcoal); margin-bottom: 15px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">
+                    📢 Manage Special Announcement
+                </h3>
+                
+                <div style="margin-bottom: 20px; padding: 15px; background: white; border: 2px solid var(--charcoal);">
+                    <div style="font-weight: 600; color: var(--charcoal); margin-bottom: 8px; font-size: 0.9em;">
+                        📌 Default Message (Always Visible)
+                    </div>
+                    <div style="margin-bottom: 10px;">
+                        <label style="display: block; margin-bottom: 5px; font-weight: 600; color: var(--charcoal); font-size: 0.85em;">
+                            Default Title
+                        </label>
+                        <input type="text" id="defaultTitleInput" placeholder="Stay Tuned!" style="width: 100%; padding: 10px; border: 2px solid var(--charcoal); font-size: 0.95em; background: white; font-family: 'Space Grotesk', sans-serif;">
+                    </div>
+                    <div style="margin-bottom: 10px;">
+                        <label style="display: block; margin-bottom: 5px; font-weight: 600; color: var(--charcoal); font-size: 0.85em;">
+                            Default Message
+                        </label>
+                        <textarea id="defaultMessageInput" rows="2" placeholder="Sometimes special offers pop up here - check back often!" style="width: 100%; padding: 10px; border: 2px solid var(--charcoal); font-size: 0.95em; background: white; font-family: 'Space Grotesk', sans-serif;"></textarea>
+                    </div>
+                    <button onclick="saveDefaultMessage()" style="width: 100%; padding: 12px; background: var(--charcoal); color: var(--cream); border: 2px solid var(--charcoal); cursor: pointer; font-weight: 700; text-transform: uppercase; font-size: 0.85em; font-family: 'Space Grotesk', sans-serif;">
+                        💾 Save Default Message
+                    </button>
+                </div>
+                
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--charcoal); text-transform: uppercase; font-size: 0.85em;">
+                        Special Announcement Title
+                    </label>
+                    <input type="text" id="notificationTitleInput" placeholder="e.g., 🎉 Free Upgrade Today!" style="width: 100%; padding: 12px; border: 3px solid var(--charcoal); font-size: 1em; background: white; font-family: 'Space Grotesk', sans-serif;">
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--charcoal); text-transform: uppercase; font-size: 0.85em;">
+                        Message
+                    </label>
+                    <textarea id="notificationMessageInput" rows="3" placeholder="e.g., Today only: Add guac for free on any order!" style="width: 100%; padding: 12px; border: 3px solid var(--charcoal); font-size: 1em; background: white; font-family: 'Space Grotesk', sans-serif;"></textarea>
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--charcoal); text-transform: uppercase; font-size: 0.85em;">
+                        Duration (How Long to Display)
+                    </label>
+                    <select id="notificationDuration" style="width: 100%; padding: 12px; border: 3px solid var(--charcoal); font-size: 1em; background: white; font-family: 'Space Grotesk', sans-serif;">
+                        <option value="30">30 Minutes</option>
+                        <option value="60">1 Hour</option>
+                        <option value="120">2 Hours</option>
+                        <option value="180">3 Hours</option>
+                        <option value="360">6 Hours</option>
+                        <option value="720">12 Hours</option>
+                        <option value="1440" selected>24 Hours (1 Day)</option>
+                        <option value="2880">48 Hours (2 Days)</option>
+                        <option value="4320">72 Hours (3 Days)</option>
+                        <option value="10080">1 Week</option>
+                    </select>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <button onclick="postNotification()" style="padding: 15px; background: var(--sage); color: var(--cream); border: 3px solid var(--charcoal); cursor: pointer; font-weight: 700; text-transform: uppercase; font-size: 0.9em; font-family: 'Space Grotesk', sans-serif;">
+                        📢 Post Special Announcement
+                    </button>
+                    <button onclick="clearNotification()" style="padding: 15px; background: var(--burgundy); color: var(--cream); border: 3px solid var(--charcoal); cursor: pointer; font-weight: 700; text-transform: uppercase; font-size: 0.9em; font-family: 'Space Grotesk', sans-serif;">
+                        🗑️ Clear & Restore Default
+                    </button>
+                </div>
+                <div id="notificationStatus" style="margin-top: 15px; padding: 10px; background: white; border: 2px solid var(--charcoal); display: none; font-weight: 600; color: var(--charcoal); text-align: center;"></div>
+            </div>
+            
+            <div style="margin-bottom: 30px; padding: 25px; background: var(--cream); border: 3px solid var(--charcoal); position: relative; z-index: 1;">
+                <h3 style="color: var(--charcoal); margin-bottom: 15px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">
                     📬 Getting Notifications
                 </h3>
                 <div style="color: var(--charcoal); line-height: 1.8;">
@@ -859,6 +962,27 @@
             
             <h2 style="margin-bottom: 20px; color: var(--charcoal);">All Bookings</h2>
             <div id="adminBookings"></div>
+        </div>
+
+        <div id="myOrdersTab" class="content" style="display: none;">
+            <h2 style="margin-bottom: 20px; color: var(--charcoal);">💾 My Orders</h2>
+            <p style="margin-bottom: 20px; color: var(--charcoal); opacity: 0.8;">View your order history and save favorites for quick reordering!</p>
+            
+            <div style="margin-bottom: 30px;">
+                <h3 style="color: var(--burgundy); margin-bottom: 15px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">⭐ Saved Favorites</h3>
+                <div id="favoriteOrders"></div>
+            </div>
+            
+            <div>
+                <h3 style="color: var(--sage); margin-bottom: 15px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">📜 Order History</h3>
+                <div id="orderHistory"></div>
+            </div>
+        </div>
+
+        <div id="archiveTab" class="content" style="display: none;">
+            <h2 style="margin-bottom: 20px; color: var(--charcoal);">📦 Archived Weeks</h2>
+            <p style="margin-bottom: 20px; color: var(--charcoal); opacity: 0.8;">Past weeks are automatically archived here. Click a week to view details.</p>
+            <div id="archiveList"></div>
         </div>
     </div>
 
@@ -893,7 +1017,165 @@
                 Notification.requestPermission();
             }
             
+            // Check if we need to archive old weeks
+            await checkAndArchiveOldWeeks();
+            
+            // Load and display special notification if exists
+            await loadSpecialNotification();
+            
             renderAll();
+        }
+
+        async function loadSpecialNotification() {
+            try {
+                // First, check for active special notification
+                const notification = await window.storage.get('meal-blocks-special-notification');
+                
+                if (notification && notification.value) {
+                    const data = JSON.parse(notification.value);
+                    
+                    // Check if expired
+                    const expiresAt = new Date(data.expiresAt);
+                    const now = new Date();
+                    
+                    if (now < expiresAt) {
+                        // Still active - show special notification
+                        document.getElementById('notificationTitle').textContent = data.title;
+                        document.getElementById('notificationMessage').textContent = data.message;
+                        
+                        // Add pulse animation for special announcements
+                        const notifDiv = document.getElementById('specialNotification');
+                        notifDiv.style.animation = 'pulse 2s infinite';
+                        return;
+                    } else {
+                        // Expired - clear it
+                        await window.storage.delete('meal-blocks-special-notification');
+                    }
+                }
+                
+                // No active special notification - show default message
+                const defaultMsg = await window.storage.get('meal-blocks-default-notification');
+                if (defaultMsg && defaultMsg.value) {
+                    const data = JSON.parse(defaultMsg.value);
+                    document.getElementById('notificationTitle').textContent = data.title;
+                    document.getElementById('notificationMessage').textContent = data.message;
+                } else {
+                    // Fallback to hardcoded default
+                    document.getElementById('notificationTitle').textContent = 'Stay Tuned!';
+                    document.getElementById('notificationMessage').textContent = 'Sometimes special offers pop up here - check back often!';
+                }
+                
+                // Remove pulse animation for default message
+                const notifDiv = document.getElementById('specialNotification');
+                notifDiv.style.animation = 'none';
+                
+            } catch (e) {
+                console.error('Failed to load notification:', e);
+            }
+        }
+
+        async function saveDefaultMessage() {
+            const title = document.getElementById('defaultTitleInput').value.trim() || 'Stay Tuned!';
+            const message = document.getElementById('defaultMessageInput').value.trim() || 'Sometimes special offers pop up here - check back often!';
+            
+            const defaultData = {
+                title: title,
+                message: message
+            };
+            
+            try {
+                await window.storage.set('meal-blocks-default-notification', JSON.stringify(defaultData));
+                
+                const statusDiv = document.getElementById('notificationStatus');
+                statusDiv.textContent = '✅ Default message saved!';
+                statusDiv.style.display = 'block';
+                statusDiv.style.background = '#d4edda';
+                statusDiv.style.color = '#155724';
+                
+                // Reload notification on page
+                await loadSpecialNotification();
+                
+                setTimeout(() => {
+                    statusDiv.style.display = 'none';
+                }, 3000);
+            } catch (e) {
+                alert('Failed to save default message: ' + e.message);
+            }
+        }
+
+        async function postNotification() {
+            const title = document.getElementById('notificationTitleInput').value.trim();
+            const message = document.getElementById('notificationMessageInput').value.trim();
+            const durationMinutes = parseInt(document.getElementById('notificationDuration').value);
+            
+            if (!title || !message) {
+                alert('Please fill in both title and message!');
+                return;
+            }
+            
+            const now = new Date();
+            const expiresAt = new Date(now.getTime() + durationMinutes * 60000);
+            
+            const notificationData = {
+                id: Date.now().toString(),
+                title: title,
+                message: message,
+                timestamp: now.toISOString(),
+                expiresAt: expiresAt.toISOString(),
+                durationMinutes: durationMinutes
+            };
+            
+            try {
+                await window.storage.set('meal-blocks-special-notification', JSON.stringify(notificationData));
+                
+                const statusDiv = document.getElementById('notificationStatus');
+                statusDiv.textContent = `✅ Special announcement posted! Expires in ${durationMinutes < 60 ? durationMinutes + ' min' : Math.floor(durationMinutes/60) + ' hours'}`;
+                statusDiv.style.display = 'block';
+                statusDiv.style.background = '#d4edda';
+                statusDiv.style.color = '#155724';
+                
+                // Clear inputs
+                document.getElementById('notificationTitleInput').value = '';
+                document.getElementById('notificationMessageInput').value = '';
+                
+                // Reload notification on page
+                await loadSpecialNotification();
+                
+                setTimeout(() => {
+                    statusDiv.style.display = 'none';
+                }, 5000);
+            } catch (e) {
+                alert('Failed to post notification: ' + e.message);
+            }
+        }
+
+        async function clearNotification() {
+            if (!confirm('Clear the special announcement and return to default message?')) {
+                return;
+            }
+            
+            try {
+                await window.storage.delete('meal-blocks-special-notification');
+                
+                // Reload to show default
+                await loadSpecialNotification();
+                
+                const statusDiv = document.getElementById('notificationStatus');
+                statusDiv.textContent = '🗑️ Special announcement cleared! Default message restored.';
+                statusDiv.style.display = 'block';
+                statusDiv.style.background = '#f8d7da';
+                statusDiv.style.color = '#721c24';
+                
+                setTimeout(() => {
+                    statusDiv.style.display = 'none';
+                }, 3000);
+            } catch (e) {
+                alert('Failed to clear notification: ' + e.message);
+            }
+        }
+
+        function dismissNotification() {
+            // Deprecated - no longer used since notification always shows
         }
 
         async function saveBookings() {
@@ -902,6 +1184,87 @@
             } catch (e) {
                 console.error('Failed to save bookings:', e);
             }
+        }
+
+        // Check if bookings from past weeks need to be archived
+        async function checkAndArchiveOldWeeks() {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            // Get current week Monday
+            const currentWeekMonday = new Date(today);
+            while (currentWeekMonday.getDay() !== 1) {
+                currentWeekMonday.setDate(currentWeekMonday.getDate() - 1);
+            }
+            
+            // Find bookings from past weeks
+            const pastBookings = bookings.filter(booking => {
+                const bookingDate = new Date(booking.date);
+                return bookingDate < currentWeekMonday;
+            });
+            
+            if (pastBookings.length > 0) {
+                // Group by week
+                const weekGroups = {};
+                pastBookings.forEach(booking => {
+                    const bookingDate = new Date(booking.date);
+                    const weekMonday = new Date(bookingDate);
+                    while (weekMonday.getDay() !== 1) {
+                        weekMonday.setDate(weekMonday.getDate() - 1);
+                    }
+                    const weekKey = weekMonday.toISOString().split('T')[0];
+                    
+                    if (!weekGroups[weekKey]) {
+                        weekGroups[weekKey] = [];
+                    }
+                    weekGroups[weekKey].push(booking);
+                });
+                
+                // Archive each week
+                for (const [weekKey, weekBookings] of Object.entries(weekGroups)) {
+                    try {
+                        const archiveKey = `meal-blocks-archive-${weekKey}`;
+                        await window.storage.set(archiveKey, JSON.stringify(weekBookings));
+                    } catch (e) {
+                        console.error('Failed to archive week:', e);
+                    }
+                }
+                
+                // Remove archived bookings from current bookings
+                bookings = bookings.filter(booking => {
+                    const bookingDate = new Date(booking.date);
+                    return bookingDate >= currentWeekMonday;
+                });
+                
+                await saveBookings();
+            }
+        }
+
+        // Load archived weeks
+        async function loadArchivedWeeks() {
+            const archives = [];
+            try {
+                const keys = await window.storage.list('meal-blocks-archive-');
+                if (keys && keys.keys) {
+                    for (const key of keys.keys) {
+                        const data = await window.storage.get(key);
+                        if (data && data.value) {
+                            const weekBookings = JSON.parse(data.value);
+                            const weekDate = key.replace('meal-blocks-archive-', '');
+                            archives.push({
+                                weekDate,
+                                bookings: weekBookings
+                            });
+                        }
+                    }
+                }
+            } catch (e) {
+                console.error('Failed to load archives:', e);
+            }
+            
+            // Sort by date (newest first)
+            archives.sort((a, b) => b.weekDate.localeCompare(a.weekDate));
+            return archives;
         }
 
         function sendNotification(booking) {
@@ -930,12 +1293,61 @@
             if (tab === 'booking') {
                 tabs[0].classList.add('active');
                 document.getElementById('bookingTab').style.display = 'block';
+                document.getElementById('myOrdersTab').style.display = 'none';
                 document.getElementById('adminTab').style.display = 'none';
-            } else if (tab === 'admin') {
+                document.getElementById('archiveTab').style.display = 'none';
+            } else if (tab === 'myorders') {
                 tabs[1].classList.add('active');
                 document.getElementById('bookingTab').style.display = 'none';
+                document.getElementById('myOrdersTab').style.display = 'block';
+                document.getElementById('adminTab').style.display = 'none';
+                document.getElementById('archiveTab').style.display = 'none';
+                renderMyOrders();
+            } else if (tab === 'admin') {
+                // Check if already authenticated
+                const isAuthenticated = sessionStorage.getItem('admin-authenticated') === 'true';
+                
+                if (!isAuthenticated) {
+                    // Prompt for password
+                    const password = prompt('Enter admin password:');
+                    
+                    // Set your password here (change "justin2026" to whatever you want)
+                    if (password === 'justin2026') {
+                        sessionStorage.setItem('admin-authenticated', 'true');
+                    } else {
+                        alert('Incorrect password!');
+                        tabs[0].classList.add('active'); // Stay on booking tab
+                        return;
+                    }
+                }
+                
+                tabs[2].classList.add('active');
+                document.getElementById('bookingTab').style.display = 'none';
+                document.getElementById('myOrdersTab').style.display = 'none';
                 document.getElementById('adminTab').style.display = 'block';
+                document.getElementById('archiveTab').style.display = 'none';
                 renderAdminView();
+            } else if (tab === 'archive') {
+                // Archive is admin-only too
+                const isAuthenticated = sessionStorage.getItem('admin-authenticated') === 'true';
+                
+                if (!isAuthenticated) {
+                    const password = prompt('Enter admin password:');
+                    if (password === 'justin2026') {
+                        sessionStorage.setItem('admin-authenticated', 'true');
+                    } else {
+                        alert('Incorrect password!');
+                        tabs[0].classList.add('active');
+                        return;
+                    }
+                }
+                
+                tabs[3].classList.add('active');
+                document.getElementById('bookingTab').style.display = 'none';
+                document.getElementById('myOrdersTab').style.display = 'none';
+                document.getElementById('adminTab').style.display = 'none';
+                document.getElementById('archiveTab').style.display = 'block';
+                renderArchiveView();
             }
         }
 
@@ -1151,6 +1563,26 @@
                 document.getElementById('bookingContact').value = savedContact;
             }
             
+            // Check if reordering a favorite
+            const pendingReorder = sessionStorage.getItem('pending-reorder');
+            if (pendingReorder) {
+                try {
+                    const favorite = JSON.parse(pendingReorder);
+                    document.getElementById('orderDetails').value = favorite.details;
+                    
+                    // Show image preview if available
+                    if (favorite.image) {
+                        document.getElementById('imagePreview').innerHTML = `
+                            <img src="${favorite.image}" style="max-width: 100%; border: 3px solid var(--charcoal); margin-top: 10px;">
+                            <p style="margin-top: 10px; font-size: 0.9em; color: var(--sage); font-weight: 600;">📸 Image from saved favorite (upload new to replace)</p>
+                        `;
+                    }
+                    
+                    sessionStorage.removeItem('pending-reorder');
+                    showAlert('✅ Favorite order loaded! Review and confirm.', 'success');
+                } catch (e) {}
+            }
+            
             document.getElementById('bookingForm').style.display = 'block';
             document.getElementById('bookingForm').scrollIntoView({ behavior: 'smooth' });
         }
@@ -1336,11 +1768,261 @@
             }, 5000);
         }
 
+        async function renderArchiveView() {
+            const container = document.getElementById('archiveList');
+            const archives = await loadArchivedWeeks();
+            
+            if (archives.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <h3>No archived weeks yet</h3>
+                        <p>Past weeks will automatically appear here after they end.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = archives.map(archive => {
+                const weekDate = new Date(archive.weekDate);
+                const weekEnd = new Date(weekDate);
+                weekEnd.setDate(weekEnd.getDate() + 4);
+                
+                const totalOrders = archive.bookings.length;
+                
+                return `
+                    <div style="margin-bottom: 25px; border: 3px solid var(--charcoal); background: white; position: relative;">
+                        <div style="padding: 20px; background: var(--sage); border-bottom: 3px solid var(--charcoal); cursor: pointer;" onclick="toggleWeekDetails('${archive.weekDate}')">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <h3 style="color: var(--cream); font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">
+                                    📅 Week of ${formatDate(weekDate)} - ${formatDate(weekEnd)}
+                                </h3>
+                                <div style="background: var(--cream); color: var(--charcoal); padding: 8px 20px; font-weight: 700; text-transform: uppercase; font-size: 0.9em;">
+                                    ${totalOrders} Orders
+                                </div>
+                            </div>
+                        </div>
+                        <div id="week-${archive.weekDate}" style="display: none; padding: 25px;">
+                            ${renderArchivedBookings(archive.bookings)}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function toggleWeekDetails(weekDate) {
+            const element = document.getElementById(`week-${weekDate}`);
+            if (element.style.display === 'none') {
+                element.style.display = 'block';
+            } else {
+                element.style.display = 'none';
+            }
+        }
+
+        function renderArchivedBookings(weekBookings) {
+            // Group by date
+            const grouped = {};
+            weekBookings.forEach(booking => {
+                if (!grouped[booking.date]) grouped[booking.date] = [];
+                grouped[booking.date].push(booking);
+            });
+            
+            return Object.entries(grouped).map(([date, dayBookings]) => {
+                const dateObj = new Date(date);
+                return `
+                    <div style="margin-bottom: 25px;">
+                        <h4 style="color: var(--burgundy); margin-bottom: 15px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; padding-bottom: 10px; border-bottom: 2px solid var(--charcoal);">
+                            ${formatDate(dateObj)} (${dayBookings.length} booking${dayBookings.length !== 1 ? 's' : ''})
+                        </h4>
+                        ${dayBookings.map(booking => `
+                            <div style="margin-bottom: 15px; padding: 20px; background: var(--cream); border: 2px solid var(--charcoal);">
+                                <div style="margin-bottom: 10px;">
+                                    <strong style="color: var(--charcoal); text-transform: uppercase; font-size: 0.9em;">${booking.name} - ${booking.session}</strong>
+                                </div>
+                                <div style="color: var(--charcoal); font-size: 0.9em; line-height: 1.6;">
+                                    📞 ${booking.contact}<br>
+                                    📝 ${booking.details}
+                                </div>
+                                ${booking.image ? `
+                                    <div style="margin-top: 15px;">
+                                        <img src="${booking.image}" style="max-width: 300px; max-height: 300px; border: 3px solid var(--charcoal); display: block;">
+                                    </div>
+                                ` : ''}
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function renderMyOrders() {
+            const userName = localStorage.getItem('meal-blocks-user-name');
+            
+            if (!userName) {
+                document.getElementById('favoriteOrders').innerHTML = `
+                    <div style="padding: 20px; background: var(--cream); border: 2px solid var(--charcoal); text-align: center; color: var(--charcoal);">
+                        Make your first booking to see your order history!
+                    </div>
+                `;
+                document.getElementById('orderHistory').innerHTML = '';
+                return;
+            }
+            
+            // Get user's bookings
+            const userBookings = bookings.filter(b => b.name === userName);
+            
+            // Get favorites from localStorage
+            let favorites = [];
+            try {
+                const saved = localStorage.getItem('meal-blocks-favorites');
+                if (saved) {
+                    favorites = JSON.parse(saved);
+                }
+            } catch (e) {}
+            
+            // Render favorites
+            if (favorites.length === 0) {
+                document.getElementById('favoriteOrders').innerHTML = `
+                    <div style="padding: 20px; background: var(--cream); border: 2px solid var(--charcoal); text-align: center; color: var(--charcoal);">
+                        Save your favorite orders from order history below!
+                    </div>
+                `;
+            } else {
+                document.getElementById('favoriteOrders').innerHTML = favorites.map(fav => `
+                    <div style="margin-bottom: 15px; padding: 20px; background: white; border: 3px solid var(--mustard);">
+                        <div style="margin-bottom: 10px;">
+                            <strong style="color: var(--charcoal); text-transform: uppercase; font-size: 1em;">⭐ ${fav.name || 'Favorite Order'}</strong>
+                        </div>
+                        <div style="color: var(--charcoal); font-size: 0.9em; margin-bottom: 15px;">
+                            📝 ${fav.details}
+                        </div>
+                        ${fav.image ? `
+                            <div style="margin-bottom: 15px;">
+                                <img src="${fav.image}" style="max-width: 200px; max-height: 200px; border: 2px solid var(--charcoal); display: block;">
+                            </div>
+                        ` : ''}
+                        <div style="display: flex; gap: 10px;">
+                            <button onclick="reorderFavorite(${favorites.indexOf(fav)})" style="flex: 1; padding: 12px; background: var(--sage); color: var(--cream); border: 2px solid var(--charcoal); cursor: pointer; font-weight: 700; text-transform: uppercase; font-size: 0.85em;">
+                                🔄 Reorder This
+                            </button>
+                            <button onclick="removeFavorite(${favorites.indexOf(fav)})" style="padding: 12px 20px; background: var(--burgundy); color: var(--cream); border: 2px solid var(--charcoal); cursor: pointer; font-weight: 700; text-transform: uppercase; font-size: 0.85em;">
+                                🗑️
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+            
+            // Render order history
+            if (userBookings.length === 0) {
+                document.getElementById('orderHistory').innerHTML = `
+                    <div style="padding: 20px; background: var(--cream); border: 2px solid var(--charcoal); text-align: center; color: var(--charcoal);">
+                        No orders yet this week!
+                    </div>
+                `;
+            } else {
+                document.getElementById('orderHistory').innerHTML = userBookings.map(booking => {
+                    const bookingDate = new Date(booking.date);
+                    return `
+                        <div style="margin-bottom: 15px; padding: 20px; background: var(--cream); border: 2px solid var(--charcoal);">
+                            <div style="margin-bottom: 10px;">
+                                <strong style="color: var(--charcoal); text-transform: uppercase; font-size: 0.9em;">${formatDate(bookingDate)} - ${booking.session}</strong>
+                            </div>
+                            <div style="color: var(--charcoal); font-size: 0.9em; margin-bottom: 15px;">
+                                📝 ${booking.details}
+                            </div>
+                            ${booking.image ? `
+                                <div style="margin-bottom: 15px;">
+                                    <img src="${booking.image}" style="max-width: 200px; max-height: 200px; border: 2px solid var(--charcoal); display: block;">
+                                </div>
+                            ` : ''}
+                            <button onclick="saveAsFavorite(${booking.id})" style="padding: 10px 20px; background: var(--mustard); color: var(--charcoal); border: 2px solid var(--charcoal); cursor: pointer; font-weight: 700; text-transform: uppercase; font-size: 0.85em;">
+                                ⭐ Save as Favorite
+                            </button>
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+
+        function saveAsFavorite(bookingId) {
+            const booking = bookings.find(b => b.id === bookingId);
+            if (!booking) return;
+            
+            let favorites = [];
+            try {
+                const saved = localStorage.getItem('meal-blocks-favorites');
+                if (saved) {
+                    favorites = JSON.parse(saved);
+                }
+            } catch (e) {}
+            
+            // Check if already saved
+            const exists = favorites.some(f => f.details === booking.details);
+            if (exists) {
+                alert('This order is already in your favorites!');
+                return;
+            }
+            
+            favorites.push({
+                name: booking.details.substring(0, 30) + (booking.details.length > 30 ? '...' : ''),
+                details: booking.details,
+                image: booking.image
+            });
+            
+            localStorage.setItem('meal-blocks-favorites', JSON.stringify(favorites));
+            showAlert('✅ Saved to favorites!', 'success');
+            renderMyOrders();
+        }
+
+        function removeFavorite(index) {
+            if (!confirm('Remove this favorite?')) return;
+            
+            let favorites = [];
+            try {
+                const saved = localStorage.getItem('meal-blocks-favorites');
+                if (saved) {
+                    favorites = JSON.parse(saved);
+                }
+            } catch (e) {}
+            
+            favorites.splice(index, 1);
+            localStorage.setItem('meal-blocks-favorites', JSON.stringify(favorites));
+            renderMyOrders();
+        }
+
+        function reorderFavorite(index) {
+            let favorites = [];
+            try {
+                const saved = localStorage.getItem('meal-blocks-favorites');
+                if (saved) {
+                    favorites = JSON.parse(saved);
+                }
+            } catch (e) {}
+            
+            const favorite = favorites[index];
+            if (!favorite) return;
+            
+            // Switch to booking tab and pre-fill the order details
+            switchTab('booking');
+            
+            // Show alert to user
+            showAlert('📋 Pick a session and your favorite order will be pre-filled!', 'success');
+            
+            // Store the favorite to pre-fill next time they select a session
+            sessionStorage.setItem('pending-reorder', JSON.stringify(favorite));
+        }
+
         function renderAll() {
             renderCalendar();
             updateStats();
             if (document.getElementById('adminTab').style.display !== 'none') {
                 renderAdminView();
+            }
+            if (document.getElementById('myOrdersTab').style.display !== 'none') {
+                renderMyOrders();
+            }
+            if (document.getElementById('archiveTab').style.display !== 'none') {
+                renderArchiveView();
             }
         }
 
